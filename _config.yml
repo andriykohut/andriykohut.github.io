@@ -1,6 +1,6 @@
 # Site settings
 title: crunchy_crow's blog
-email: andriy.kogut@gmail.com
+email: kogut.andriy@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
   Hi, I'm Andriy Kohut and this is my blog.
 baseurl: "" # the subpath of your site, e.g. /blog/
