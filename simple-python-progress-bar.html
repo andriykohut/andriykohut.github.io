@@ -6,8 +6,8 @@
   <link rel="stylesheet" type="text/css" href="/theme/css/pygments.min.css">
   <link rel="stylesheet" type="text/css" href="/theme/css/font-awesome.min.css">
   <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="HOKAI! Atom">
-  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
-  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="img/favicon.ico" type="image/x-icon">
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -62,7 +62,102 @@
     <p>Posted on Fri 31 July 2015 in <a href="/category/python.html">Python</a></p>
   </header>
   <div>
-    <p>Test</p>
+    <p>I'm big on beautiful command line tools, I often launch <code>htop</code> just to please my eyes. <a href="https://github.com/jonas/tig">tig</a> output on a large repo with hundreds of intertwined branches is like an work of art to me.</p>
+<p>When working on some command line tool or script I try make it beautiful. Today I'm going to explain how to create simple and beautiful command line progress bar in python.</p>
+<p>So let's start, here's how <code>wget</code> progress bar looks like:</p>
+<div class="highlight"><pre>[#############################           ]
+</pre></div>
+
+
+<p>Here we have <code>[</code> and <code>]</code> indicatign the left and right border of progress bar, progress is denoted by sequence of <code>#</code> characters, and remaining work is just a bunch of spaces.</p>
+<p>Let's initialize our progress bar:</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">ProgressBar</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">start_value</span><span class="p">,</span> <span class="n">total_value</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">start_border</span><span class="o">=</span><span class="s">&#39;[&#39;</span><span class="p">,</span>
+        <span class="n">end_border</span><span class="o">=</span><span class="s">&#39;]&#39;</span><span class="p">,</span> <span class="n">progress_char</span><span class="o">=</span><span class="s">&#39;#&#39;</span><span class="p">,</span> <span class="n">remaining_char</span><span class="o">=</span><span class="s">&#39;-&#39;</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_value</span> <span class="o">=</span> <span class="n">start_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_value</span> <span class="o">=</span> <span class="n">total_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_border</span> <span class="o">=</span> <span class="n">start_border</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_border</span> <span class="o">=</span> <span class="n">end_border</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progress_char</span> <span class="o">=</span> <span class="n">progress_char</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remaining_char</span> <span class="o">=</span> <span class="n">remaining_char</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_progress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_value</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Here we have following parameters:
+<em> <code>start_value</code> - Initial value of progress
+</em> <code>total_value</code> - Value for 100% progress
+<em> <code>width</code> - progress bar width
+</em> <code>start_border</code>, <code>end_border</code> - indicate the left and right borders of progress bar
+<em> <code>progress_char</code> - single-character string to represent current progress
+</em> <code>remaining_char</code> - single-character string to represent remaining progress</p>
+<p>The variable <code>self._progress</code> will hold the current number of progress chars. Next we'll need to define <code>set_progress</code> method. That's simple:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">set_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">*</span> <span class="n">value</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_value</span><span class="p">)</span>
+</pre></div>
+
+
+<p>I didn't really knew how to make a progress bar to appear as a single line, without printing new line for each step, eg:</p>
+<div class="highlight"><pre><span class="k">[########################                ]</span>
+<span class="k">[#############################           ]</span>
+<span class="k">[##################################      ]</span>
+</pre></div>
+
+
+<p>and so on. But, as it turns out, it's pretty simple. <code>\r</code> - the carriage return character is what we need here. Here's what it does:</p>
+<div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;this will be removed&#39;</span><span class="p">,</span> <span class="s">&#39;</span><span class="se">\r</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;this will be displayed&#39;</span><span class="p">]</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+   <span class="o">....</span><span class="p">:</span>     <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+   <span class="o">....</span><span class="p">:</span>
+<span class="n">this</span> <span class="n">will</span> <span class="n">be</span> <span class="n">displayed</span>
+</pre></div>
+
+
+<p>If you ever used a typewriter, it should be familiar :)</p>
+<p>So let's define a <code>progress</code> method which will actually display something - update progress:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+     <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_progress</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+     <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\r</span><span class="s">{}{}{}{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">_start_border</span><span class="p">,</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">_progress_char</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">,</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">_remaining_char</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">),</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">_end_border</span><span class="p">)</span>
+     <span class="p">)</span>
+     <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Here we just calculate the number of progress characters and remaining characters, and then rewrite the current progress line with the new one. Flushing is important to make sure progress updates with each step.</p>
+<p>Let's try how it works:</p>
+<div class="highlight"><pre><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">pb</span> <span class="o">=</span> <span class="n">ProgressBar</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+  <span class="n">pb</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+  <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Here's some <a href="https://asciinema.org/">ascinema</a> demo:
+<script type="text/javascript" src="https://asciinema.org/a/0yda22tv9hafgr15ff4z28utm.js" id="asciicast-0yda22tv9hafgr15ff4z28utm" async></script></p>
+<p>Let's add some helper methods for working with generators:</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">do_with_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gen</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">gen</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Then we can have something like:</p>
+<div class="highlight"><pre>
+</pre></div>
   </div>
   <div class="tag-cloud">
     <p>
