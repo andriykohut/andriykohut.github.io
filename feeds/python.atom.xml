@@ -6,7 +6,7 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Here we have &lt;code&gt;[&lt;/code&gt; and &lt;code&gt;]&lt;/code&gt; indicatign the left and right border of progress bar, progress is denoted by sequence of &lt;code&gt;#&lt;/code&gt; characters, and remaining work is just a bunch of spaces.&lt;/p&gt;
+&lt;p&gt;Here we have &lt;code&gt;[&lt;/code&gt; and &lt;code&gt;]&lt;/code&gt; indicating the left and right border of progress bar, progress is denoted by sequence of &lt;code&gt;#&lt;/code&gt; characters, and remaining work is just a bunch of spaces.&lt;/p&gt;
 &lt;p&gt;Let's initialize our progress bar:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;ProgressBar&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
 
