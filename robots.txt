@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://andriykohut.github.io/hawse/sitemap-index.xml
